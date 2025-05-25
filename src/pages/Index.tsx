@@ -1,8 +1,11 @@
-
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import React from "react";
 import Layout from "@/components/Layout";
 import Dashboard from "@/components/Dashboard";
 import { SchedulerProvider } from "@/contexts/SchedulerContext";
+
+
 
 const Index: React.FC = () => {
   return (

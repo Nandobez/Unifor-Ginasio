@@ -1,11 +1,18 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../components/ui/card';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -16,32 +23,34 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = async (data: LoginFormData) => {
+    // Simula um login bem-sucedido
     try {
-      const response = await fetch('https://api.example.com/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error('Erro de login');
-      const result = await response.json();
-      localStorage.setItem('token', result.token);
-      navigate('/home');
+      // Aqui você pode colocar sua chamada real à API
+      console.log('Credenciais recebidas:', data);
+
+      // Simulação de sucesso
+      localStorage.setItem('token', 'fake-jwt-token');
+      navigate('/home'); // Redireciona para /home
     } catch (error) {
       console.error('Erro de login:', error);
+      alert('Erro ao realizar login. Verifique suas credenciais.');
     }
   };
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
-      {/* Imagem de fundo com efeito de desfoque */}
       <div className="absolute inset-0 z-0">
         <img
-          src="../public/logos/background.jpg"
+          src="../logos/background.jpg"
           alt="Fundo"
           className="object-cover w-full h-full"
         />
@@ -49,10 +58,9 @@ export default function LoginPage() {
       </div>
 
       <div className="relative z-10 w-full max-w-md px-4">
-        {/* Logo */}
         <div className="flex justify-center mb-6">
           <img
-            src="../public/logos/logo.png"
+            src="../logos/logo.png"
             alt="Ginásio Unifor"
             className="h-auto w-[180px]"
           />
@@ -60,7 +68,9 @@ export default function LoginPage() {
 
         <Card className="border-0 shadow-lg bg-white/95">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center text-blue-950">Acesso ao Sistema</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center text-blue-950">
+              Acesso ao Sistema
+            </CardTitle>
             <CardDescription className="text-center text-gray-600">
               Entre com suas credenciais para acessar o painel administrativo
             </CardDescription>
@@ -78,16 +88,21 @@ export default function LoginPage() {
                   {...register('email')}
                   className="border-blue-200 focus:border-blue-500"
                 />
-                {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+                {errors.email && (
+                  <p className="text-red-500 text-sm">{errors.email.message}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password" className="text-blue-950">
                     Senha
                   </Label>
-                  <a href="#" className="text-sm text-blue-600 hover:underline">
+                  <Link
+                    to="/recuperarsenha"
+                    className="text-sm text-blue-600 hover:underline"
+                  >
                     Esqueceu a senha?
-                  </a>
+                  </Link>
                 </div>
                 <Input
                   id="password"
@@ -95,9 +110,14 @@ export default function LoginPage() {
                   {...register('password')}
                   className="border-blue-200 focus:border-blue-500"
                 />
-                {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+                {errors.password && (
+                  <p className="text-red-500 text-sm">{errors.password.message}</p>
+                )}
               </div>
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+              <Button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700"
+              >
                 Entrar
               </Button>
             </form>
@@ -111,13 +131,18 @@ export default function LoginPage() {
                 <span className="bg-white px-2 text-gray-500">ou</span>
               </div>
             </div>
-            <Button variant="outline" className="w-full border-blue-200 text-blue-600 hover:bg-blue-50">
+            <Link
+              to="/solicitaracesso"
+              className="w-full text-center border border-blue-200 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium"
+            >
               Solicitar Acesso
-            </Button>
+            </Link>
           </CardFooter>
         </Card>
 
-        <p className="mt-4 text-center text-sm text-white">© 2025 Ginásio Unifor. Todos os direitos reservados.</p>
+        <p className="mt-4 text-center text-sm text-white">
+          © 2025 Ginásio Unifor. Todos os direitos reservados.
+        </p>
       </div>
     </div>
   );
