@@ -1,0 +1,151 @@
+//package com.ginasiouniforagenda.AgendamentoWeb.infra.security;
+//
+//import com.ginasiouniforagenda.AgendamentoWeb.domain.user.UserRole;
+//import com.ginasiouniforagenda.AgendamentoWeb.repository.UserRepository;
+//import jakarta.servlet.FilterChain;
+//import jakarta.servlet.ServletException;
+//import jakarta.servlet.http.HttpServletRequest;
+//import jakarta.servlet.http.HttpServletResponse;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+//import org.springframework.security.config.annotation.web.configurers.SecurityContextConfigurer;
+//import org.springframework.security.core.context.SecurityContextHolder;
+//import org.springframework.security.core.userdetails.UserDetails;
+//import org.springframework.stereotype.Component;
+//import org.springframework.web.filter.OncePerRequestFilter;
+//
+//import java.io.IOException;
+//
+//@Component
+//public class SecurityFilter extends OncePerRequestFilter {
+//    @Autowired
+//    TokenService tokenService;
+//    @Autowired
+//    UserRepository userRepository;
+//
+//    @Override
+//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+//        var token = this.recoverToken(request);
+//        if(token != null){
+//            var login = tokenService.validateToken(token);
+//            UserDetails user = userRepository.findByLogin(login);
+//
+//            var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
+//        }
+//        filterChain.doFilter(request, response);
+//    }
+//
+//    private String recoverToken(HttpServletRequest request){
+//        var authHeader = request.getHeader("Authorization");
+//        if(authHeader == null) return null;
+//        return authHeader.replace("Bearer ", "");
+//    }
+//}
+
+//
+//package com.ginasiouniforagenda.AgendamentoWeb.infra.security;
+//
+//import com.ginasiouniforagenda.AgendamentoWeb.domain.user.UserRole;
+//import com.ginasiouniforagenda.AgendamentoWeb.repository.UserRepository;
+//import jakarta.servlet.FilterChain;
+//import jakarta.servlet.ServletException;
+//import jakarta.servlet.http.HttpServletRequest;
+//import jakarta.servlet.http.HttpServletResponse;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+//import org.springframework.security.core.context.SecurityContextHolder;
+//import org.springframework.security.core.userdetails.UserDetails;
+//import org.springframework.stereotype.Component;
+//import org.springframework.web.filter.OncePerRequestFilter;
+//
+//import java.io.IOException;
+//
+//@Component
+//public class SecurityFilter extends OncePerRequestFilter {
+//    @Autowired
+//    TokenService tokenService;
+//    @Autowired
+//    UserRepository userRepository;
+//
+//    @Override
+//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+//        // IMPORTANTE: Pula o filtro para requisições OPTIONS (preflight CORS)
+//        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
+//
+//        var token = this.recoverToken(request);
+//        if(token != null){
+//            var login = tokenService.validateToken(token);
+//            if(!login.isEmpty()) { // Verifica se o token é válido
+//                UserDetails user = userRepository.findByLogin(login);
+//                if(user != null) { // Verifica se o usuário existe
+//                    var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+//                    SecurityContextHolder.getContext().setAuthentication(authentication);
+//                }
+//            }
+//        }
+//        filterChain.doFilter(request, response);
+//    }
+//
+//    private String recoverToken(HttpServletRequest request){
+//        var authHeader = request.getHeader("Authorization");
+//        if(authHeader == null) return null;
+//        return authHeader.replace("Bearer ", "");
+//    }
+//}
+
+
+package com.ginasiouniforagenda.AgendamentoWeb.infra.security;
+
+import com.ginasiouniforagenda.AgendamentoWeb.repository.UserRepository;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+
+@Component
+public class SecurityFilter extends OncePerRequestFilter {
+    @Autowired
+    TokenService tokenService;
+    @Autowired
+    UserRepository userRepository;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // Pula o filtro para requisições OPTIONS (preflight CORS)
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        var token = this.recoverToken(request);
+        if (token != null) {
+            var login = tokenService.validateToken(token);
+            if (!login.isEmpty()) {
+                UserDetails user = userRepository.findByLogin(login);
+                if (user != null) {
+                    var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            }
+        }
+        filterChain.doFilter(request, response);
+    }
+
+    private String recoverToken(HttpServletRequest request) {
+        var authHeader = request.getHeader("Authorization");
+        if (authHeader == null) return null;
+        return authHeader.replace("Bearer ", "");
+    }
+}
